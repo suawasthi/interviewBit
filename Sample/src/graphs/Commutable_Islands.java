@@ -2,6 +2,7 @@ package graphs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,38 +23,46 @@ public class Commutable_Islands {
 	}
 
 	public static int solve(int A, int[][] B) {
-		Set<Integer> set = new HashSet<Integer>();
-		int[] cost = new int[A + 1];
-		Arrays.fill(cost, Integer.MAX_VALUE);
-		cost[1] = 0;
-		// set.add(1);
-		PriorityQueue<Integer> queue = new PriorityQueue<Integer>();
-		queue.offer(1);
-		while (!queue.isEmpty()) {
-			int x = queue.poll();
-			if (set.contains(x)) {
-				continue;
-			}
-			for (int i = 0; i < B.length; i++) {
-				if (x == B[i][0]) {
-					cost[B[i][1]] = Math.min(cost[B[i][1]], B[i][2]);
-					queue.offer(B[i][1]);
-				}
-			}
-			set.add(x);
+		Graph[] graphs = new Graph[B.length];
+		for (int i = 0; i < graphs.length; i++) {
+			graphs[i]= new Graph(B[i][0], B[i][1], B[i][2]);
 		}
-		System.out.println(Arrays.toString(cost));
-		return 0;
+		
+		PriorityQueue<Graph>  queue = new PriorityQueue<Commutable_Islands.Graph>(new Comparator<Graph>() {
+			@Override
+			public int compare(Graph g1 , Graph g2) {
+				if(g1.cost > g2.cost) return 1;
+				return -1;
+			}
+			
+		});
+		for (int i = 0; i < graphs.length; i++) {
+			queue.offer(graphs[i]);
+		}
+		int[] visited = new int[A+1];
+		Arrays.fill(visited, Integer.MAX_VALUE);
+		while(!queue.isEmpty()) {
+			Graph temp =queue.poll();
+			visited[temp.vertex2] = Math.min(visited[temp.vertex2], temp.cost);
+		}
+		System.out.println(Arrays.toString(visited));
+		return 1;
+	}
+	
+	static class Graph{
+		
+		int vertex1;
+		int vertex2;
+		int cost;
+		Graph(int ver, int ver1, int cost){
+			this.vertex1=ver;
+			this.vertex2=ver1;
+			this.cost=cost;
+		}
+		
+		
 	}
 
-	private static int getSmallest(Queue<Integer> queue) {
-		List<Integer> queueCopy = queue.stream().collect(Collectors.toList());
-
-		int x = Integer.MAX_VALUE;
-		for (int i = 0; i < queueCopy.size(); i++) {
-			x = Math.min(x, queueCopy.get(i));
-		}
-		return x;
-	}
+	
 
 }
